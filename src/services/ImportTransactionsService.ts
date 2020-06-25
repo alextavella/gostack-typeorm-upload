@@ -1,9 +1,13 @@
 import csvParse from 'csv-parse';
 import fs from 'fs';
-import { getRepository } from 'typeorm';
-import importConfig from '../config/import';
+import path from 'path';
+import uploadConfig from '../config/upload';
 import Transaction from '../models/Transaction';
 import CreateTransactionService from './CreateTransactionService';
+
+interface Request {
+  filename: string;
+}
 
 interface ImportData {
   title: string;
@@ -13,10 +17,10 @@ interface ImportData {
 }
 
 class ImportTransactionsService {
-  async execute(): Promise<Transaction[]> {
-    await getRepository(Transaction).delete({});
+  async execute({ filename }: Request): Promise<Transaction[]> {
+    const filePath = path.join(uploadConfig.directory, filename);
 
-    const transactions = await this.loadCSV(importConfig.filePath);
+    const transactions = await this.loadCSV(filePath);
 
     return transactions;
   }
